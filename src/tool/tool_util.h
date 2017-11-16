@@ -8,17 +8,8 @@
 #ifndef _TOOL_UTIL_H
 #define _TOOL_UTIL_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 // get socket
-int socket_init(int domain, int type, int protocol);
+int socket_init(int domain, int type, int protocol, int* servFd);
 
 // close socket
 int socket_close(int* fd);

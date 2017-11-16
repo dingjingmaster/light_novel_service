@@ -8,4 +8,7 @@
 #ifndef _TOOL_RET_HPP
 #define _TOOL_RET_HPP
 
+#define     RET_OK          0x00000001
+#define     RET_ERROR       0xffffffff
+
 #endif
