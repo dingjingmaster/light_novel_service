@@ -7,24 +7,15 @@
 
 #ifndef _TOOL_RPC_H
 #define _TOOL_RPC_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include "tool_util.h"
 
-int main() {
+/*  待修改  */
+#define SERV_PORT       10000
+#define EPOLL_EVENTS    128
 
-    int serSockFd = 0;
+static int gepFd;
 
-
-    return 0;
-}
-
-
+int rpc_get_serv_fd();
 
 
 #endif
