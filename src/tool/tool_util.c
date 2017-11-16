@@ -69,7 +69,7 @@ int util_listen(int servFd, int backlog) {
 }
 
 // close
-int socket_close(int* fd) {
+int util_fd_close(int* fd) {
 
     if(NULL == fd) {
         return RET_NULL_POINTER;
@@ -82,6 +82,69 @@ int socket_close(int* fd) {
     
         return RET_ERROR;
     }
+
+    *fd = -1;
+
+    return RET_OK;
+}
+
+// epoll create
+int util_epoll_create(int size, int* epFd) {
+
+    if(NULL == epFd) {
+
+        return RET_NULL_POINTER;
+    }
+
+    int ret = 0;
+
+    ret = epoll_create(size);
+    if(-1 == ret) {
+    
+        return RET_ERROR;
+    }
+
+    *epFd = ret;
+
+    return RET_OK;
+}
+
+// epoll_ctl
+int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event) {
+
+    if(NULL == event) {
+
+        return RET_NULL_POINTER;
+    }
+
+    int ret = 0;
+
+    ret = epoll_ctl(epFd, op, fd, event);
+    if(-1 == ret) {
+
+        return RET_ERROR;
+    }
+
+    return RET_OK;
+}
+
+// epoll wait
+int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int timeout, int* readyNum) {
+
+    if(NULL == event || NULL == readyNum) {
+    
+        return RET_NULL_POINTER;
+    }
+
+    int ret = 0;
+
+    ret = epoll_wait(epFd, event, maxevents, timeout);
+    if(-1 == ret) {
+
+        return RET_ERROR;
+    }
+
+    *readyNum = ret;
 
     return RET_OK;
 }
