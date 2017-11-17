@@ -7,43 +7,17 @@
 
 #ifndef _TOOL_RPC_H
 #define _TOOL_RPC_H
-#include "tool_util.h"
+#include "tool_rpc_util.h"
 
-/*  待修改  */
-#define SERV_PORT       10000
-#define EPOLL_EVENTS    128
-
-typedef struct _SocketEvent SocketEvent;
-typedef void(*socket_event_call_back)(int fd, int events, void* arg);
-
-struct _SocketEvent {
-
-    int                     fd;
-    int                     events;
-    int                     status;             // 1 代表在 epoll 等待列表中, 0 不在
-    int                     len;
-    int                     s_offset;
-    void*                   arg;
-    socket_event_call_back  ev_cb;
-    long                    last_active;        // 上次活跃时间戳
-    char                    buf[128];           // 待修改
-};
+#define     EVENT_NUM   1000
 
 
-// set event
-int rpc_set_event(SocketEvent* ev, int fd, socket_event_call_back ev_cb, void* arg);
+int rpc_socket_init(unsigned short port, int* servFd, int* epollFd);
 
-// add event
-int rpc_add_event(int handle, int events, SocketEvent* ev);
+int rpc_socket_loop(int servFd, int epollFd);
 
-// del event
-int rpc_del_event(int handle, SocketEvent* ev);
 
-// init socket handle
-int rpc_socket_init(int* epHandle);
 
-// client is connecting...
-int rpc_socket_accept(int fd, int events, void* arg);
 
 
 #endif

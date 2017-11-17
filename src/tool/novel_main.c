@@ -1,16 +1,9 @@
 /*************************************************************************
-> FileName: novel_global.h
+> FileName: novel_main.c
 > Author  : DingJing
 > Mail    : dingjing@live.cn
-> Created Time: Thu 16 Nov 2017 06:34:22 PM DST
+> Created Time: Fri 17 Nov 2017 02:49:47 PM DST
  ************************************************************************/
 
-#ifndef _NOVEL_GLOBAL_H
-#define _NOVEL_GLOBAL_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include<stdio.h>
 
-
-
-#endif

@@ -1,12 +1,12 @@
 /*************************************************************************
-> FileName: ./tool_util.c
+> FileName: tool_rpc_util.c
 > Author  : DingJing
 > Mail    : dingjing@live.cn
 > Created Time: Thu 16 Nov 2017 05:21:43 PM DST
  ************************************************************************/
 
 #include "tool_ret.h"
-#include "tool_util.h"
+#include "tool_rpc_util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -171,3 +171,14 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
     return RET_OK;
 }
 
+// zero
+int util_set_zero(void* ptr, int len){
+    if(NULL == ptr) {
+
+        return RET_NULL_POINTER;
+    }
+
+    memset(ptr, 0, len);
+
+    return RET_OK;
+}

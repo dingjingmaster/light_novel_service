@@ -7,139 +7,104 @@
 
 #include "tool_rpc.h"
 #include "tool_ret.h"
+#include "tool_rpc_util.h"
 #include <time.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
 #include <netinet/in.h>
 
-int rpc_set_event(SocketEvent* ev, int fd, socket_event_call_back ev_cb, void* arg) {
+int rpc_socket_init(unsigned short port, int* servFd, int* epollFd) {
 
-    if(NULL == ev || NULL == arg) {
+    if(NULL == servFd || NULL == epollFd) {
 
         return RET_NULL_POINTER;
     }
 
-    ev->fd = fd;
-    ev->ev_cb = ev_cb;
-    ev->events = 0;
-    ev->arg = arg;
-    ev->status = 0;
-    memset(ev->buf, 0, sizeof(ev->buf));
-    ev->s_offset = 0;
-    ev->len = 0;
-    ev->last_active = time(NULL);
+    int                     ret = 0;
+    struct sockaddr_in      servAddr;
+    struct epoll_event      event;
 
-    return RET_OK;
-}
-
-// add event
-int rpc_add_event(int handle, int events, SocketEvent* ev) {
-
-    if(NULL == ev) {
-
-        return RET_OK;
-    }
-
-    int                 ret = 0;
-    struct epoll_event  epv = {0, {0}};
-
-    epv.data.ptr = ev;
-    epv.events = ev->events = events;
-
-    ret = util_epoll_ctl(handle, EPOLL_CTL_ADD, ev->fd, &epv);
+    ret = util_socket(AF_INET, SOCK_STREAM, 0, servFd);
     if(RET_OK != ret) {
 
         return ret;
     }
 
+    ret = util_set_zero(&servAddr, sizeof(struct sockaddr_in));
+    if(RET_OK != ret) {
+
+        return ret;
+    }
+
+    servAddr.sin_family = AF_INET;
+    servAddr.sin_addr.s_addr = INADDR_ANY;
+    servAddr.sin_port = htons(port);
+
+    ret = util_bind(*servFd, (struct sockaddr*)&servAddr, sizeof(servAddr));
+    if(RET_OK != ret) {
+
+        return ret;
+    }
+
+    ret = util_listen(*servFd, 128);
+    if(RET_OK != ret) {
+
+        return ret;
+    }
+
+    ret = util_epoll_create(EVENT_NUM, epollFd);
+    if(RET_OK != ret) {
+
+        return ret;
+    }
+
+    event.data.fd = *servFd;
+    event.events = EPOLLIN;
+    ret = util_epoll_ctl(*epollFd, EPOLL_CTL_ADD, *servFd, &event);
+    if(RET_OK != ret) {
+
+        return ret;
+    }
 
     return RET_OK;
 }
 
-// rpc delete event
-int rpc_del_event(int handle, SocketEvent* ev) {
+// loop
+int rpc_socket_loop(int servFd, int epollFd) {
 
-    if(NULL == ev) {
+    int                     ret = 0;
+    struct epoll_event      events[EVENT_NUM];
 
-        return RET_NULL_POINTER;
-    }
-
-    int                 ret = 0;
-    struct epoll_event  evp = {0, {0}};
-
-    if (1 != ev->status) {
-
-        return RET_WRONG_STATU;
-    }
-
-    evp.data.ptr = ev;
-    ev->status = 0;
-
-    ret = util_epoll_ctl(handle, EPOLL_CTL_DEL, ev->fd, &evp);
-    if(RET_OK != ret){
+    ret = util_set_zero(events, EVENT_NUM * sizeof(struct epoll_event));
+    if(RET_OK != ret) {
 
         return RET_ERROR;
     }
 
-    return RET_OK;
-}
+    while(1) {
 
+        int                 eventNum;
 
-// rpc socket init
-int rpc_socket_init (int* epHandle) {
+        ret = util_epoll_wait(epollFd, events, EVENT_NUM - 1, 300, &eventNum);
+        if(RET_OK != ret) {
 
-    int ret = 0;
-    int servFd = 0;
-    struct sockaddr_in sin;
-    struct epoll_event ev;                                              // 用于处理事件
+            return ret;
+        }
 
-    ret = util_epoll_create(EPOLL_EVENTS, epHandle);
-    if(RET_OK != ret) {
+        for(int i; i < eventNum; ++i) {
+            /*  关闭    */
+
+            if(servFd == events[i].data.fd) {
+
+                /*  新连接  */
+            }
+            /*  ..  */
+        }
         
-        return ret;
+
+
     }
-
-    ret = util_socket(AF_INET, SOCK_STREAM, 0, &servFd);
-    if(RET_OK != ret) {
-
-        return ret;
-    }
-
-    fcntl(servFd, F_SETFL, O_NONBLOCK);
-
-    ev.data.fd = servFd;                                                // add servFd to listen
-    ev.events = EPOLLIN;                                                // listen connection
-
-    memset(&sin, 0, sizeof(struct sockaddr_in));
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = INADDR_ANY;
-    sin.sin_port = htons(SERV_PORT);
-    
-    ret = util_bind(servFd, (struct sockaddr*)&sin, sizeof(struct sockaddr_in));
-    if(RET_OK != ret) {
-
-        return ret;
-    }
-
-    listen(servFd, 128);
 
     return RET_OK;
 }
-
-// accept
-int rpc_socket_accept(int fd, int events, void* arg) {
-
-    if(NULL == arg) {
-
-        return RET_NULL_POINTER;
-    }
-
-    int                     nfd;
-    struct sockaddr_in      cliAddr;
-
-
-
-    return RET_OK;
-}
-

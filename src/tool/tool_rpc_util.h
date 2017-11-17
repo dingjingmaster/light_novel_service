@@ -1,12 +1,12 @@
 /*************************************************************************
-> FileName: tool_util.h
+> FileName: tool_rpc_util.h
 > Author  : DingJing
 > Mail    : dingjing@live.cn
 > Created Time: Thu 16 Nov 2017 05:08:48 PM DST
  ************************************************************************/
 
-#ifndef _TOOL_UTIL_H
-#define _TOOL_UTIL_H
+#ifndef _TOOL_RPC_UTIL_H
+#define _TOOL_RPC_UTIL_H
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
@@ -67,5 +67,11 @@ int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event);
  *  readyNum    请求IO的文件描述符数量
  */
 int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int timeout, int* readyNum);
+
+/**
+ *  ptr         内存起始地址
+ *  len         内存长度
+ */
+int util_set_zero(void* ptr, int len);
 
 #endif
