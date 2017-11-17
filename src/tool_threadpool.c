@@ -13,7 +13,7 @@
 #include <pthread.h>
 
 //  每个线程都执行
-void* cthread_pool_home_routine(void *args);
+void* threadpool_routine(void *args);
 
 static PthreadPool*   threadPool = NULL;
 int                   worker = 50;
@@ -65,7 +65,7 @@ int cthread_pool_home_init(int num)
     //  num thread id
     for(i = 0; i < num; ++i)
     {
-        retInt = pthread_create(&(threadPool ->threadId[i]), NULL, cthread_pool_home_routine, NULL);
+        retInt = pthread_create(&(threadPool ->threadId[i]), NULL, threadpool_routine, NULL);
         if(retInt != 0)
         {
             puts("创建线程错误!!!");
