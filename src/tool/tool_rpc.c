@@ -127,3 +127,19 @@ int rpc_socket_init (int* epHandle) {
     return RET_OK;
 }
 
+// accept
+int rpc_socket_accept(int fd, int events, void* arg) {
+
+    if(NULL == arg) {
+
+        return RET_NULL_POINTER;
+    }
+
+    int                     nfd;
+    struct sockaddr_in      cliAddr;
+
+
+
+    return RET_OK;
+}
+

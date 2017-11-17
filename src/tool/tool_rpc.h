@@ -42,5 +42,8 @@ int rpc_del_event(int handle, SocketEvent* ev);
 // init socket handle
 int rpc_socket_init(int* epHandle);
 
+// client is connecting...
+int rpc_socket_accept(int fd, int events, void* arg);
+
 
 #endif
