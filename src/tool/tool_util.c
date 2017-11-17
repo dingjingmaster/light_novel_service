@@ -68,6 +68,28 @@ int util_listen(int servFd, int backlog) {
     return RET_OK;
 }
 
+// accept
+int util_accept(int sockFd, struct sockaddr* addr, socklen_t* addrlen, int* fdNum) {
+
+    if(NULL == addr || NULL == addrlen || NULL == fdNum) {
+
+        return RET_NULL_POINTER;
+    }
+
+    int         ret = 0;
+
+    ret = accept(sockFd, addr, addrlen);
+    if(RET_OK != ret) {
+
+        return RET_ERROR;
+    }
+
+    *fdNum = ret;
+
+    return RET_OK;
+}
+
+
 // close
 int util_fd_close(int* fd) {
 
@@ -80,10 +102,10 @@ int util_fd_close(int* fd) {
     ret = close(*fd);
     if(-1 == ret) {
     
-        return RET_ERROR;
+        return RET_FD_CLOSED;
     }
 
-    *fd = -1;
+    *fd = RET_FD_CLOSED;
 
     return RET_OK;
 }

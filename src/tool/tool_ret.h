@@ -10,6 +10,7 @@
 
 #define     RET_OK                  0x00000001
 #define     RET_WRONG_STATU         0x00000002
+#define     RET_FD_CLOSED           0x00000003
 
 #define     RET_NULL_POINTER        0xf0000001
 #define     RET_ERROR               0xffffffff
