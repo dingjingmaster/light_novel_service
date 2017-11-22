@@ -1,12 +1,12 @@
 /*************************************************************************
-	> File Name: tool_threadpool.h
+	> File Name: tool_thread_pool.h
 	> Author: DingJing
-	> Mail: dingjing_ding@staff.easou.com
+	> Mail: dingjing@live.cn
 	> Created Time: 2017年06月20日 星期二 09时59分15秒
  ************************************************************************/
 
-#ifndef _TOOL_THREADPOOL_H
-#define _TOOL_THREADPOOL_H
+#ifndef _TOOL_THREAD_POOL_H
+#define _TOOL_THREAD_POOL_H
 
 #include <pthread.h>
 

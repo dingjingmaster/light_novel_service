@@ -1,12 +1,12 @@
 /*************************************************************************
-> FileName: tool_rpc_util.h
+> FileName: tool_socket.h
 > Author  : DingJing
 > Mail    : dingjing@live.cn
 > Created Time: Thu 16 Nov 2017 05:08:48 PM DST
  ************************************************************************/
 
-#ifndef _TOOL_RPC_UTIL_H
-#define _TOOL_RPC_UTIL_H
+#ifndef _TOOL_SOCKET_H
+#define _TOOL_SOCKET_H
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
