@@ -17,6 +17,8 @@
 #include <netinet/in.h>
 
 typedef void(*event_call_back)(int fd, int events, void* arg);          // 事件发生的回调函数
+void event_read_cb(int fd, int events, void* arg);
+void event_write_cb(int fd, int events, void* arg);
 
 typedef struct _MyEvent MyEvent;
 typedef struct _ToolRpc ToolRpc;
@@ -27,7 +29,7 @@ struct _MyEvent {
     int                 status;                                         // 0 不在epoll监听队列, 1在epoll监听队列
     int                 len;                                            // 接受数据长度
     int                 offset;                                         // 偏移
-    char*               recvBuf;                                        // 接收缓冲区
+    char*               buf;                                            // 接收缓冲区
     void*               arg;
     event_call_back     ev_cb;
     long                lastActivity;                                   // 上次活跃时间
@@ -35,13 +37,14 @@ struct _MyEvent {
 
 struct _ToolRpc {
     int                 servFd;                                         // 服务端文件描述符
-    int                 epollFd;                                        // epoll文件描述符
     int                 status;                                         // 状态(0正常运行, 1关闭)
     int                 evenLen;                                        // 事件链表的长度
     unsigned short      port;                                           // 端口
 };
 
 MyEvent             myEventG[MAX_EVENT + 1];                            // 事件
+int                 epollFdG;                                           // epoll文件描述符
+
 
 // 设置事件操作
 int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
@@ -59,7 +62,7 @@ int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
     ev ->offset = 0;
     ev ->len = 0;
     ev ->lastActivity = time(NULL);
-    ret = util_malloc((void**)&(ev ->recvBuf), RECV_BUFFER);
+    ret = util_malloc((void**)&(ev ->buf), RECV_BUF_LEN);
     if(RET_OK != ret) {
         /* 错误 */
 
@@ -120,6 +123,55 @@ int event_del(int epollFd, MyEvent* ev){
 
     return RET_OK;
 }
+
+void event_write_cb(int fd, int events, void* arg) {
+    
+    int                 len = 0;
+    MyEvent*            ev = (MyEvent*)arg;
+
+    len = write(fd, ev ->buf + ev ->offset, ev ->len);
+    if(len > 0) {
+        //
+        ev ->offset += len;
+        if(ev ->offset == ev ->len) {
+            event_del(epollFdG, ev);
+            event_set(ev, fd, event_read_cb, ev);
+            event_add(epollFdG, EPOLLIN, ev);
+        }
+    } else {
+        close (ev ->fd);
+        event_del(epollFdG, ev);
+
+        // ok
+    }
+}
+
+void event_read_cb(int fd, int events, void* arg) {
+
+    int                 ret = 0;
+    int                 len = 0;
+    MyEvent*            ev = (MyEvent*)arg;
+
+    len = read(fd, ev ->buf + ev->len, RECV_BUF_LEN - 1 - ev->len);
+    ret = event_del(epollFdG, ev);
+    if(RET_OK != ret) {
+        // 错误
+    }
+    if (len > 0) {
+        ev ->len += len;
+        ev ->buf[len] = '\0';
+        // 没有接受完整的信息
+        event_set(ev, fd, event_write_cb, ev);
+        event_add(epollFdG, EPOLLOUT, ev);
+    } else if (len == 0) {
+        close (ev ->fd);
+        // 正常关闭
+    } else {
+        close (ev->fd);
+        // 错误关闭
+    }
+}
+
 
 // accept 回调实现
 void event_accept_cb(int fd, int events, void* arg) {
@@ -185,7 +237,6 @@ int rpc_socket_init(void* handle) {
 
     int                     ret = 0;
     int                     servFd;
-    int                     epollFd;
     struct sockaddr_in      servAddr;
     struct epoll_event      event;
 
@@ -219,7 +270,7 @@ int rpc_socket_init(void* handle) {
         return ret;
     }
 
-    ret = util_epoll_create(MAX_EVENT + 1, &epollFd);
+    ret = util_epoll_create(MAX_EVENT + 1, &epollFdG);
     if(RET_OK != ret) {
 
         return ret;
@@ -227,7 +278,7 @@ int rpc_socket_init(void* handle) {
 
     event.data.fd = servFd;
     event.events = EPOLLIN;
-    ret = util_epoll_ctl(epollFd, EPOLL_CTL_ADD, servFd, &event);
+    ret = util_epoll_ctl(epollFdG, EPOLL_CTL_ADD, servFd, &event);
     if(RET_OK != ret) {
 
         return ret;
@@ -235,27 +286,10 @@ int rpc_socket_init(void* handle) {
 
     // 保存
     ((ToolRpc*)handle) ->servFd = servFd;
-    ((ToolRpc*)handle) ->epollFd= epollFd;
 
     return RET_OK;
 }
-/*
- 
-struct _MyEvent {
-    int                 fd;                                             // 文件描述符
-    int                 events;
-    int                 status;                                         // 0 不在epoll监听队列, 1在epoll监听队列
-    int                 len;                                            // 接受数据长度
-    int                 offset;                                         // 偏移
-    char*               recvBuf;                                        // 接收缓冲区
-    void*               arg;
-    event_call_back     ev_cb;
-    long                lastActivity;                                   // 上次活跃时间
-};
 
-
- 
- * */
 
 // loop
 int rpc_socket_loop(void* handle){
@@ -268,7 +302,6 @@ int rpc_socket_loop(void* handle){
     struct epoll_event      eventOut[MAX_EVENT];                    // 返回的事件
 
     int                     servFd = ((ToolRpc*)handle) ->servFd;
-    int                     epollFd = ((ToolRpc*)handle) ->epollFd;
 
     ret = util_set_zero(eventOut, MAX_EVENT * sizeof(struct epoll_event));
     if(RET_OK != ret) {
@@ -293,12 +326,12 @@ int rpc_socket_loop(void* handle){
             dura = now - myEventG[checkPos].lastActivity;
             if(60 <= dura) {
                 close(myEventG[checkPos].fd);
-                event_del(epollFd, &myEventG[checkPos]);
+                event_del(epollFdG, &myEventG[checkPos]);
             }
         }
 
         // 等待事件发生
-        ret = util_epoll_wait(epollFd, eventOut, MAX_EVENT - 1, 300, &eventNum);
+        ret = util_epoll_wait(epollFdG, eventOut, MAX_EVENT - 1, 300, &eventNum);
         if(RET_OK != ret) {
 
             /* error 但不能退出 */
@@ -361,3 +394,7 @@ int free_rpc_handle(void** handle) {
 
     return RET_OK;
 }
+
+
+
+
