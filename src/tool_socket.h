@@ -68,10 +68,4 @@ int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event);
  */
 int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int timeout, int* readyNum);
 
-/**
- *  ptr         内存起始地址
- *  len         内存长度
- */
-int util_set_zero(void* ptr, int len);
-
 #endif

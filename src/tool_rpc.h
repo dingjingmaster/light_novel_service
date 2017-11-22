@@ -9,7 +9,7 @@
 #define _TOOL_RPC_H
 #include "tool_socket.h"
 
-#define     EVENT_NUM       1000
+#define     MAX_EVENT       1000
 #define     RECV_BUFFER     40960
 #define     SEND_BUFFER     10240
 

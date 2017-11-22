@@ -171,14 +171,3 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
     return RET_OK;
 }
 
-// zero
-int util_set_zero(void* ptr, int len){
-    if(NULL == ptr) {
-
-        return RET_NULL_POINTER;
-    }
-
-    memset(ptr, 0, len);
-
-    return RET_OK;
-}
