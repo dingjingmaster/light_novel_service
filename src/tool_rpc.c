@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 
@@ -141,8 +142,6 @@ void event_write_cb(int fd, int events, void* arg) {
     } else {
         close (ev ->fd);
         event_del(epollFdG, ev);
-
-        // ok
     }
 }
 
@@ -211,7 +210,7 @@ void event_accept_cb(int fd, int events, void* arg) {
 
 /*  各个接口实现    */
 int get_rpc_handle(unsigned short port, void** handle){
-    if(NULL == handle || 0 > port){
+    if(NULL == handle || port <= 0){
 
         return RET_NULL_POINTER;
     }
@@ -235,6 +234,12 @@ int get_rpc_handle(unsigned short port, void** handle){
 // 初始化
 int rpc_socket_init(void* handle) {
 
+    if(NULL == handle) {
+
+        return RET_NULL_POINTER;
+    }
+
+    printf("%s\n", "初始化");
     int                     ret = 0;
     int                     servFd;
     struct sockaddr_in      servAddr;
@@ -245,12 +250,15 @@ int rpc_socket_init(void* handle) {
     ret = util_socket(AF_INET, SOCK_STREAM, 0, &servFd);
     if(RET_OK != ret) {
 
+        printf("%s\n", "获取socket失败");
+
         return ret;
     }
 
     ret = util_set_zero(&servAddr, sizeof(struct sockaddr_in));
     if(RET_OK != ret) {
 
+        printf("%s\n", "设置0失败");
         return ret;
     }
 
@@ -260,18 +268,21 @@ int rpc_socket_init(void* handle) {
 
     ret = util_bind(servFd, (struct sockaddr*)&servAddr, sizeof(servAddr));
     if(RET_OK != ret) {
+        printf("%s\n", "绑定失败");
 
         return ret;
     }
 
     ret = util_listen(servFd, 128);
     if(RET_OK != ret) {
+        printf("%s\n", "listen失败");
 
         return ret;
     }
 
     ret = util_epoll_create(MAX_EVENT + 1, &epollFdG);
     if(RET_OK != ret) {
+        printf("%s\n", "epoll create失败");
 
         return ret;
     }
@@ -294,6 +305,12 @@ int rpc_socket_init(void* handle) {
 // loop
 int rpc_socket_loop(void* handle){
 
+    if(NULL == handle) {
+
+        return RET_NULL_POINTER;
+    }
+    printf("%s\n", "loop");
+
     int                     ret = 0;
     int                     checkPos = 0;
     int                     eventNum;
@@ -310,6 +327,7 @@ int rpc_socket_loop(void* handle){
     }
 
     while(1) {
+    printf("%s\n", "loop begin");
 
         eventNum = 0;
         now = time(NULL);

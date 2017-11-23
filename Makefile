@@ -31,7 +31,9 @@ LOGOBJS = $(LOGDIR)/buf.o\
 		  $(LOGDIR)/zc_util.o\
 		  $(LOGDIR)/zlog.o
 
-SERVEROBJS = $(SRCDIR)/tool_util.o\
+SERVEROBJS = $(SRCDIR)/main.o\
+			 $(SRCDIR)/main_run.o\
+			 $(SRCDIR)/tool_util.o\
 			 $(SRCDIR)/tool_thread_pool.o\
 			 $(SRCDIR)/tool_socket.o\
 			 $(SRCDIR)/tool_rpc.o
@@ -39,11 +41,11 @@ SERVEROBJS = $(SRCDIR)/tool_util.o\
 
 
 $(TARGET) : $(SERVEROBJS) $(LOGOBJS)
-	$(CC) -o $@ $^ $(LIBRARY)
+	$(CC) -o $@ $^ $(LIBRARY) $(DEBUG) $(WARNINGS)
 
 
 %.o : %.c
-	$(CC) -o $@ -c $^ $(DEBUG) $(WARNINGS)
+	$(CC) -o $@ -c $< $(DEBUG) $(WARNINGS)
 
 
 

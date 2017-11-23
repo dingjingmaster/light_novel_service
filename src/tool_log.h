@@ -7,4 +7,8 @@
 
 #ifndef _TOOL_LOG_H
 #define _TOOL_LOG_H
+
+
+
+
 #endif
