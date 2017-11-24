@@ -50,6 +50,7 @@ int                 epollFdG;                                           // epoll
 
 // 设置事件操作
 int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
+    DEBUG("ok");
     if(NULL == ev) {
 
         ERROR("input error");
@@ -66,6 +67,7 @@ int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
     ev ->len = 0;
     ev ->lastActivity = time(NULL);
     ret = util_malloc((void**)&(ev ->buf), RECV_BUF_LEN);
+    DEBUG("ok");
     if(RET_OK != ret) {
         /* 错误 */
 
@@ -77,6 +79,7 @@ int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
 
 // 添加事件操作
 int event_add(int epollFd, int events, MyEvent* ev) {
+    DEBUG("ok");
     if(NULL == ev) {
 
         return RET_NULL_POINTER;
@@ -95,6 +98,7 @@ int event_add(int epollFd, int events, MyEvent* ev) {
         ev ->status = 1;
     }
     ret = util_epoll_ctl(epollFd, op, ev ->fd, &epv);
+    DEBUG("ok");
     if(RET_OK != ret){
         /* 错误 */
         return RET_ERROR;
@@ -105,6 +109,7 @@ int event_add(int epollFd, int events, MyEvent* ev) {
 
 // 删除事件
 int event_del(int epollFd, MyEvent* ev){
+    DEBUG("ok");
     if(NULL == ev) {
 
         return RET_NULL_POINTER;
@@ -119,6 +124,7 @@ int event_del(int epollFd, MyEvent* ev){
     epv.data.ptr = ev;
     ev ->status = 0;
     ret = util_epoll_ctl(epollFd, EPOLL_CTL_DEL, ev ->fd, &epv);
+    DEBUG("ok");
     if(RET_OK != ret){
         /* 错误 */
         return RET_ERROR;
@@ -133,6 +139,7 @@ void event_write_cb(int fd, int events, void* arg) {
     MyEvent*            ev = (MyEvent*)arg;
 
     len = write(fd, ev ->buf + ev ->offset, ev ->len);
+    DEBUG("ok");
     if(len > 0) {
         //
         ev ->offset += len;
@@ -148,13 +155,16 @@ void event_write_cb(int fd, int events, void* arg) {
 }
 
 void event_read_cb(int fd, int events, void* arg) {
+    DEBUG("ok");
 
     int                 ret = 0;
     int                 len = 0;
     MyEvent*            ev = (MyEvent*)arg;
 
     len = read(fd, ev ->buf + ev->len, RECV_BUF_LEN - 1 - ev->len);
+    DEBUG("ok");
     ret = event_del(epollFdG, ev);
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("event del error");
@@ -178,6 +188,7 @@ void event_read_cb(int fd, int events, void* arg) {
 
 // accept 回调实现
 void event_accept_cb(int fd, int events, void* arg) {
+    DEBUG("ok");
 
     int                 i = 0;
     int                 nfd;
@@ -206,6 +217,7 @@ void event_accept_cb(int fd, int events, void* arg) {
 
         //
         ret = util_set_noblocking(nfd);
+    DEBUG("ok");
         if(RET_OK != ret) {
 
             ERROR("server set no blocking error");
@@ -216,6 +228,7 @@ void event_accept_cb(int fd, int events, void* arg) {
 
 /*  各个接口实现    */
 int get_rpc_handle(unsigned short port, void** handle){
+    DEBUG("ok");
     if(NULL == handle || port <= 0){
 
         ERROR("intput value error");
@@ -228,6 +241,7 @@ int get_rpc_handle(unsigned short port, void** handle){
 
     // 分配内存
     toolRpc = (ToolRpc*) malloc (sizeof(ToolRpc));
+    DEBUG("ok");
     if(NULL == toolRpc) {
 
         ERROR("rpc handll malloc error");
@@ -244,6 +258,7 @@ int get_rpc_handle(unsigned short port, void** handle){
 
 // 初始化
 int rpc_socket_init(void* handle) {
+    DEBUG("ok");
 
     if(NULL == handle) {
 
@@ -259,6 +274,7 @@ int rpc_socket_init(void* handle) {
     int port = ((ToolRpc*)handle) ->port;
 
     ret = util_socket(AF_INET, SOCK_STREAM, 0, &servFd);
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("get socket error");
@@ -266,6 +282,7 @@ int rpc_socket_init(void* handle) {
     }
 
     ret = util_set_zero(&servAddr, sizeof(struct sockaddr_in));
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("memory init error");
@@ -277,6 +294,7 @@ int rpc_socket_init(void* handle) {
     servAddr.sin_port = htons(port);
 
     ret = util_bind(servFd, (struct sockaddr*)&servAddr, sizeof(servAddr));
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("bind error");
@@ -284,6 +302,7 @@ int rpc_socket_init(void* handle) {
     }
 
     ret = util_listen(servFd, 128);
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("listen error");
@@ -291,6 +310,7 @@ int rpc_socket_init(void* handle) {
     }
 
     ret = util_epoll_create(MAX_EVENT + 1, &epollFdG);
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         ERROR("epoll create error");
@@ -300,6 +320,7 @@ int rpc_socket_init(void* handle) {
     event.data.fd = servFd;
     event.events = EPOLLIN;
     ret = util_epoll_ctl(epollFdG, EPOLL_CTL_ADD, servFd, &event);
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         return ret;
@@ -330,28 +351,34 @@ int rpc_socket_loop(void* handle){
     int                     servFd = ((ToolRpc*)handle) ->servFd;
 
     ret = util_set_zero(eventOut, MAX_EVENT * sizeof(struct epoll_event));
+    DEBUG("ok");
     if(RET_OK != ret) {
 
         return RET_ERROR;
     }
 
     while(1) {
-    printf("%s\n", "loop begin");
+    DEBUG("ok");
 
         eventNum = 0;
         now = time(NULL);
 
         /*  每隔一段时间检查一下事件是否超出    */
         for(int i = 0; i < 100; ++i, ++ checkPos) {
+    DEBUG("ok");
             if(MAX_EVENT == checkPos) {
+    DEBUG("ok");
                 checkPos = 0;
             }
             if(myEventG[checkPos].status != 1) {
+    DEBUG("ok");
                 continue;
             }
 
             dura = now - myEventG[checkPos].lastActivity;
+    DEBUG("ok");
             if(60 <= dura) {
+    DEBUG("ok");
                 close(myEventG[checkPos].fd);
                 event_del(epollFdG, &myEventG[checkPos]);
             }
@@ -359,6 +386,7 @@ int rpc_socket_loop(void* handle){
 
         // 等待事件发生
         ret = util_epoll_wait(epollFdG, eventOut, MAX_EVENT - 1, 300, &eventNum);
+    DEBUG("ok");
         if(RET_OK != ret) {
 
             /* error 但不能退出 */
@@ -366,9 +394,12 @@ int rpc_socket_loop(void* handle){
         }
 
         for(int i = 0; i < eventNum; ++i) {
+    DEBUG("ok");
             MyEvent* ev = (MyEvent*)eventOut[i].data.ptr;
+    DEBUG("ok");
 
             if((eventOut[i].events & EPOLLIN) && (ev ->events & EPOLLIN)) {     // 读事件
+    DEBUG("ok");
 
             }
 
@@ -385,6 +416,7 @@ int rpc_socket_loop(void* handle){
 
 // 关闭
 int rpc_socket_close(void* handle){
+    DEBUG("ok");
 
     if(NULL == handle) {
 
@@ -399,6 +431,7 @@ int rpc_socket_close(void* handle){
 
 // 删除handle
 int free_rpc_handle(void** handle) {
+    DEBUG("ok");
 
     if(NULL == handle || NULL == *handle) {
 
