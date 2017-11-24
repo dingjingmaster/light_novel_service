@@ -10,7 +10,7 @@
 #include "tool_socket.h"
 
 #define     MAX_EVENT       1000
-#define     RECV_BUF_LEN    40960
+#define     RECV_BUF_LEN    4096
 
 int get_rpc_handle(unsigned short port, void** handle/* out */);
 

@@ -27,6 +27,7 @@ int server_main(int argc, char* argv[]) {
 
     // 获得handle
     ret = get_rpc_handle(port, &handle);
+    DEBUG("get_rpc_handle OK");
     if(RET_OK != ret) {
 
         ERROR("get_rpc_handle error");
@@ -34,39 +35,47 @@ int server_main(int argc, char* argv[]) {
     }
 
 
+
     // 初始化 handle
     ret = rpc_socket_init(handle);
+    DEBUG("rpc_socket_init OK");
     if(RET_OK != ret) {
 
         ERROR("rpc_socket_init error");
         return RET_ERROR;
     }
+        
 
     // 开始循环
     ret = rpc_socket_loop(handle);
+    DEBUG("rpc_socket_loop OK");
     if(RET_OK != ret) {
 
         ERROR("rpc_socket_loop error");
         return RET_ERROR;
     }
-
+        
 
 
     // 关闭socket
     ret = rpc_socket_close(handle);
+    DEBUG("rpc_socket_close OK");
     if(RET_OK != ret) {
 
         ERROR("rpc_socket_close error");
         return RET_ERROR;
     }
 
+
     // 服务关闭
     ret = free_rpc_handle(&handle);
+    DEBUG("free_rpc_handle OK");
     if(RET_OK != ret) {
 
         ERROR("free_rpc_handle error");
         return RET_ERROR;
     }
+        
 
     return RET_OK;
 }
