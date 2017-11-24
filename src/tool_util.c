@@ -7,6 +7,7 @@
 
 #include "tool_util.h"
 #include "tool_ret.h"
+#include "tool_log.h"
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -15,6 +16,7 @@
 int util_set_zero(void* ptr, int len){
     if(NULL == ptr) {
 
+        ERROR("传入参数空指针错误 ...");
         return RET_NULL_POINTER;
     }
 
@@ -26,6 +28,7 @@ int util_set_zero(void* ptr, int len){
 int util_malloc(void** ptr, int len) {
     if(NULL == ptr || NULL == *ptr || len <= 0) {
 
+        ERROR("传入参数空指针错误 ...");
         return RET_NULL_POINTER;
     }
 
@@ -38,6 +41,7 @@ int util_malloc(void** ptr, int len) {
         retInt = util_set_zero(*ptr, len);
         if(RET_OK != retInt) {
 
+            ERROR("内存格式化失败 ...");
             free(ret);
             *ptr = NULL;
 
@@ -47,6 +51,7 @@ int util_malloc(void** ptr, int len) {
         return RET_OK;
     }
     *ptr = NULL;
+    ERROR("内存分配失败 ...");
 
     return RET_ERROR;
 }
@@ -58,6 +63,7 @@ int util_set_noblocking(int fd) {
     ret = fcntl(fd, F_SETFL, O_NONBLOCK);
     if(ret < 0) {
     
+        ERROR("设置文件描述符非阻塞错误 ...");
         return RET_ERROR;
     }
 

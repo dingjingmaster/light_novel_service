@@ -6,6 +6,7 @@
  ************************************************************************/
 
 #include "tool_ret.h"
+#include "tool_log.h"
 #include "tool_socket.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@ int util_socket(int domain, int type, int protocol, int* servFd) {
 
     if(NULL == servFd) {
 
+        ERROR("传入参数空指针错误 ...");
         return RET_NULL_POINTER;
     }
 
@@ -27,6 +29,7 @@ int util_socket(int domain, int type, int protocol, int* servFd) {
     ret = socket(domain, type, protocol);
     if(-1 == ret) {
 
+        ERROR("获取服务端文件描述符错误 ...");
         return RET_ERROR;
     }
 
@@ -40,6 +43,7 @@ int util_bind(int servFd, const struct sockaddr* addr, socklen_t addrlen) {
 
     if(NULL == addr) {
 
+        ERROR("传入参数空指针错误 ...");
         return RET_NULL_POINTER;
     }
 
@@ -48,6 +52,7 @@ int util_bind(int servFd, const struct sockaddr* addr, socklen_t addrlen) {
     ret = bind(servFd, addr, addrlen);
     if(-1 == ret) {
     
+        ERROR("绑定错误 ...");
         return RET_ERROR;
     }
 
@@ -163,6 +168,7 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
     ret = epoll_wait(epFd, event, maxevents, timeout);
     if(-1 == ret) {
 
+        ERROR("");
         return RET_ERROR;
     }
 
