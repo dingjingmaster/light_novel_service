@@ -83,7 +83,7 @@ LOGOBJS = $(LOGDIR)/buf.o\
 
 
 
-$(TEST) : 
+test : $(TEST) 
 
 
 $(TESTDIR)/test_bitmap : $(TESTDIR)/test_bitmap.o  $(LOGOBJS)
