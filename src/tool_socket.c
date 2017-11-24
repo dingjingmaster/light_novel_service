@@ -20,7 +20,7 @@ int util_socket(int domain, int type, int protocol, int* servFd) {
 
     if(NULL == servFd) {
 
-        ERROR("intput value error");
+        ERROR("util_socket input error");
         return RET_NULL_POINTER;
     }
 
@@ -29,7 +29,7 @@ int util_socket(int domain, int type, int protocol, int* servFd) {
     ret = socket(domain, type, protocol);
     if(-1 == ret) {
 
-        ERROR("get service fd error");
+        ERROR("socket return error");
         return RET_ERROR;
     }
 
@@ -43,7 +43,7 @@ int util_bind(int servFd, const struct sockaddr* addr, socklen_t addrlen) {
 
     if(NULL == addr) {
 
-        ERROR("input value error");
+        ERROR("util_bind input error");
         return RET_NULL_POINTER;
     }
 
@@ -79,7 +79,7 @@ int util_accept(int sockFd, struct sockaddr* addr, socklen_t* addrlen, int* fdNu
 
     if(NULL == addr || NULL == addrlen || NULL == fdNum) {
 
-        ERROR("intput error");
+        ERROR("util_accept intput error");
         return RET_NULL_POINTER;
     }
 
@@ -88,7 +88,7 @@ int util_accept(int sockFd, struct sockaddr* addr, socklen_t* addrlen, int* fdNu
     ret = accept(sockFd, addr, addrlen);
     if(RET_OK != ret) {
 
-        ERROR("socket accept error");
+        ERROR("accept return error");
         return RET_ERROR;
     }
 
@@ -103,7 +103,7 @@ int util_fd_close(int* fd) {
 
     if(NULL == fd) {
 
-        ERROR("intput fd error");
+        ERROR("util_fd_close intput error");
         return RET_NULL_POINTER;
     }
 
@@ -112,7 +112,7 @@ int util_fd_close(int* fd) {
     ret = close(*fd);
     if(-1 == ret) {
 
-        ERROR("close file error");
+        ERROR("close return error");
         return RET_FD_CLOSED;
     }
 
@@ -126,7 +126,7 @@ int util_epoll_create(int size, int* epFd) {
 
     if(NULL == epFd) {
 
-        ERROR("input epoll no pointer error");
+        ERROR("util_epoll_create input error");
         return RET_NULL_POINTER;
     }
 
@@ -135,7 +135,7 @@ int util_epoll_create(int size, int* epFd) {
     ret = epoll_create(size);
     if(-1 == ret) {
     
-        ERROR("epoll create error");
+        ERROR("epoll_create return error");
         return RET_ERROR;
     }
 
@@ -149,7 +149,7 @@ int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event) {
 
     if(NULL == event) {
 
-        ERROR("event no pointer error");
+        ERROR("util_epoll_ctl input error");
         return RET_NULL_POINTER;
     }
 
@@ -158,7 +158,7 @@ int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event) {
     ret = epoll_ctl(epFd, op, fd, event);
     if(-1 == ret) {
 
-        ERROR("retuen value error");
+        ERROR("epoll_ctl return error");
         return RET_ERROR;
     }
 
@@ -170,7 +170,7 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
 
     if(NULL == event || NULL == readyNum) {
     
-        ERROR("input parameter no pointer error");
+        ERROR("util_epoll_wait input error");
         return RET_NULL_POINTER;
     }
 
@@ -179,7 +179,7 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
     ret = epoll_wait(epFd, event, maxevents, timeout);
     if(-1 == ret) {
 
-        ERROR("retuen error");
+        ERROR("epoll_wait return error");
         return RET_ERROR;
     }
 

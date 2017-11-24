@@ -16,7 +16,7 @@
 int util_set_zero(void* ptr, int len){
     if(NULL == ptr) {
 
-        ERROR("input value error");
+        ERROR("util_set_zero input error");
         return RET_NULL_POINTER;
     }
 
@@ -28,7 +28,7 @@ int util_set_zero(void* ptr, int len){
 int util_malloc(void** ptr, int len) {
     if(NULL == ptr || NULL == *ptr || len <= 0) {
 
-        ERROR("input value error");
+        ERROR("util_malloc input error");
         return RET_NULL_POINTER;
     }
 
@@ -37,23 +37,22 @@ int util_malloc(void** ptr, int len) {
     ret = malloc(len);
     if(NULL != ret) {
 
-        *ptr = ret;
-        retInt = util_set_zero(*ptr, len);
-        if(RET_OK != retInt) {
+        *ptr = NULL;
+        ERROR("malloc error");
+        return RET_ERROR;
+    } 
+    *ptr = ret;
+    retInt = util_set_zero(*ptr, len);
+    if(RET_OK != retInt) {
 
-            ERROR("memset error");
-            free(ret);
-            *ptr = NULL;
+        ERROR("util_set_zero return error");
+        free(ret);
+        *ptr = NULL;
 
-            return RET_ERROR;
-        }
-
-        return RET_OK;
+        return RET_ERROR;
     }
-    *ptr = NULL;
-    ERROR("malloc error");
 
-    return RET_ERROR;
+    return RET_OK;
 }
 
 int util_set_noblocking(int fd) {
@@ -63,7 +62,7 @@ int util_set_noblocking(int fd) {
     ret = fcntl(fd, F_SETFL, O_NONBLOCK);
     if(ret < 0) {
     
-        ERROR("set fd noblock error");
+        ERROR("fcntl return error");
         return RET_ERROR;
     }
 
