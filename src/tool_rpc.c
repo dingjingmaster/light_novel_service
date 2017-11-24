@@ -7,6 +7,7 @@
 
 #include "tool_rpc.h"
 #include "tool_ret.h"
+#include "tool_log.h"
 #include "tool_util.h"
 #include "tool_socket.h"
 #include <time.h>
@@ -51,6 +52,7 @@ int                 epollFdG;                                           // epoll
 int event_set(MyEvent* ev, int fd, event_call_back cb, void* arg){
     if(NULL == ev) {
 
+        ERROR("input error");
         return RET_NULL_POINTER;
     }
 
@@ -154,7 +156,8 @@ void event_read_cb(int fd, int events, void* arg) {
     len = read(fd, ev ->buf + ev->len, RECV_BUF_LEN - 1 - ev->len);
     ret = event_del(epollFdG, ev);
     if(RET_OK != ret) {
-        // 错误
+
+        ERROR("event del error");
     }
     if (len > 0) {
         ev ->len += len;
@@ -167,7 +170,8 @@ void event_read_cb(int fd, int events, void* arg) {
         // 正常关闭
     } else {
         close (ev->fd);
-        // 错误关闭
+
+        ERROR("read info error");
     }
 }
 
@@ -183,7 +187,8 @@ void event_accept_cb(int fd, int events, void* arg) {
 
     ret = util_accept(fd, (struct sockaddr*)&cliAddr, &len, &nfd);
     if(RET_OK != ret) {
-        /*  发生错误    */
+
+        ERROR("server accept error");
         return;
     }
 
@@ -202,7 +207,8 @@ void event_accept_cb(int fd, int events, void* arg) {
         //
         ret = util_set_noblocking(nfd);
         if(RET_OK != ret) {
-            /* 错误 */
+
+            ERROR("server set no blocking error");
         }
     }while(0);
 }
@@ -212,6 +218,7 @@ void event_accept_cb(int fd, int events, void* arg) {
 int get_rpc_handle(unsigned short port, void** handle){
     if(NULL == handle || port <= 0){
 
+        ERROR("intput value error");
         return RET_NULL_POINTER;
     }
 
@@ -221,6 +228,10 @@ int get_rpc_handle(unsigned short port, void** handle){
 
     // 分配内存
     toolRpc = (ToolRpc*) malloc (sizeof(ToolRpc));
+    if(NULL == toolRpc) {
+
+        ERROR("rpc handll malloc error");
+    }
 
     // 赋值
     toolRpc ->port = port;
@@ -236,10 +247,10 @@ int rpc_socket_init(void* handle) {
 
     if(NULL == handle) {
 
+        ERROR("input value error");
         return RET_NULL_POINTER;
     }
 
-    printf("%s\n", "初始化");
     int                     ret = 0;
     int                     servFd;
     struct sockaddr_in      servAddr;
@@ -250,15 +261,14 @@ int rpc_socket_init(void* handle) {
     ret = util_socket(AF_INET, SOCK_STREAM, 0, &servFd);
     if(RET_OK != ret) {
 
-        printf("%s\n", "获取socket失败");
-
+        ERROR("get socket error");
         return ret;
     }
 
     ret = util_set_zero(&servAddr, sizeof(struct sockaddr_in));
     if(RET_OK != ret) {
 
-        printf("%s\n", "设置0失败");
+        ERROR("memory init error");
         return ret;
     }
 
@@ -268,22 +278,22 @@ int rpc_socket_init(void* handle) {
 
     ret = util_bind(servFd, (struct sockaddr*)&servAddr, sizeof(servAddr));
     if(RET_OK != ret) {
-        printf("%s\n", "绑定失败");
 
+        ERROR("bind error");
         return ret;
     }
 
     ret = util_listen(servFd, 128);
     if(RET_OK != ret) {
-        printf("%s\n", "listen失败");
 
+        ERROR("listen error");
         return ret;
     }
 
     ret = util_epoll_create(MAX_EVENT + 1, &epollFdG);
     if(RET_OK != ret) {
-        printf("%s\n", "epoll create失败");
 
+        ERROR("epoll create error");
         return ret;
     }
 
@@ -309,7 +319,6 @@ int rpc_socket_loop(void* handle){
 
         return RET_NULL_POINTER;
     }
-    printf("%s\n", "loop");
 
     int                     ret = 0;
     int                     checkPos = 0;
@@ -353,6 +362,7 @@ int rpc_socket_loop(void* handle){
         if(RET_OK != ret) {
 
             /* error 但不能退出 */
+            ERROR("get wrong event back error");
         }
 
         for(int i = 0; i < eventNum; ++i) {
@@ -378,6 +388,7 @@ int rpc_socket_close(void* handle){
 
     if(NULL == handle) {
 
+        ERROR("handle no pointer error");
         return RET_ERROR;
     }
 
@@ -391,6 +402,7 @@ int free_rpc_handle(void** handle) {
 
     if(NULL == handle || NULL == *handle) {
 
+        ERROR("handle no pointer error");
         return RET_NULL_POINTER;
     }
 
