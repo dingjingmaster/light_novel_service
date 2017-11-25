@@ -1,4 +1,5 @@
 utosave
+.*
 *.a
 *.log
 *.core
