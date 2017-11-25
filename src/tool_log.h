@@ -28,9 +28,9 @@
 	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_DEBUG, __VA_ARGS__)
 
-int log_init(char* confPath);
+void log_init(char* confPath);
 
-int log_destory();
+void log_destory();
 
 
 

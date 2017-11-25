@@ -9,10 +9,11 @@
 #include "tool_ret.h"
 #include <stdio.h>
 
-int log_init(char* confPath) {
+void log_init(char* confPath) {
     if(NULL == confPath) {
-
-        return RET_NULL_POINTER;
+		 
+		 ERROR("log_init error: %s", confPath);
+		 return ;
     }
 
     int                 rc = 0;
@@ -20,17 +21,15 @@ int log_init(char* confPath) {
     rc = dzlog_init(confPath, "");
     if(rc) {
 
-        return RET_ERROR;
+		 ERROR("dzlog_init error ret: %d", rc);
+		 return ;
     }
 
-    return RET_OK;
 }
 
-int log_destory(){
+void log_destory(){
 
     zlog_fini();
-
-    return RET_OK;
 }
 
 

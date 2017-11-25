@@ -101,7 +101,7 @@ int event_add(int epollFd, int events, MyEvent* ev) {
     ret = util_epoll_ctl(epollFd, op, ev ->fd, &epv);
     if(RET_OK != ret){
 
-        ERROR("util_epoll_ctl return error");
+        ERROR("util_epoll_ctl error -- [epFd: %d, op: %d, evfd: %d], ret: %d", epollFd, op, ev->fd, ret);
         return RET_ERROR;
     }
 
@@ -121,7 +121,7 @@ int event_del(int epollFd, MyEvent* ev){
     struct epoll_event  epv = {0, {0}};
 
     if(1 != ev ->status)
-        DEBUG("ev->status != 0 ");
+        DEBUG("ev->status == 0 ");
         return RET_OK;
 
     epv.data.ptr = ev;
@@ -146,6 +146,7 @@ void event_write_cb(int fd, int events, void* arg) {
         //
         ev ->offset += len;
         if(ev ->offset == ev ->len) {
+        		close (ev ->fd);
             event_del(epollFdG, ev);
             event_set(ev, fd, event_read_cb, ev);
             event_add(epollFdG, EPOLLIN, ev);
@@ -178,9 +179,10 @@ void event_read_cb(int fd, int events, void* arg) {
 
         INFO("client fd normal close");
         close (ev ->fd);
+		  event_del(epollFdG, ev);
     } else {
         close (ev->fd);
-
+		  event_del(epollFdG, ev);
         ERROR("read info error and client close");
     }
 }
@@ -198,7 +200,7 @@ void event_accept_cb(int fd, int events, void* arg) {
     ret = util_accept(fd, (struct sockaddr*)&cliAddr, &len, &nfd);
     if(RET_OK != ret) {
 
-        ERROR("util_accept return error");
+        ERROR("util_accept return error -- [fd: %d, len: %d, nfd: %d]", fd, len, nfd);
         return;
     }
 
@@ -279,23 +281,19 @@ int rpc_socket_init(void* handle) {
     ret = util_socket(AF_INET, SOCK_STREAM, 0, &servFd);
     if(RET_OK != ret) {
 
-        ERROR("util_socket return error");
+        ERROR("util_socket error -- [servFd: %d]", servFd);
         return ret;
     }
+
+   INFO ("init servFd: %d", servFd);
 
     // servFd 设置非阻塞
     ret = util_set_noblocking(servFd);
     if(RET_OK != ret) {
 
-        ERROR("util_set_noblocking return error");
+        ERROR("util_set_noblocking error -- [servFd: %d]", servFd);
         return ret;
     }
-
-    // 设置事件
-    event_set(&myEventG[MAX_EVENT], servFd, event_accept_cb, &myEventG[MAX_EVENT]);
-
-    // 添加事件
-    event_add(epollFdG, EPOLLIN, &myEventG[MAX_EVENT]);
 
     ret = util_set_zero(&servAddr, sizeof(struct sockaddr_in));
     if(RET_OK != ret) {
@@ -329,14 +327,11 @@ int rpc_socket_init(void* handle) {
         return ret;
     }
 
-    //event.data.fd = servFd;
-    //event.events = EPOLLIN;
-    //ret = util_epoll_ctl(epollFdG, EPOLL_CTL_ADD, servFd, &event);
-    //if(RET_OK != ret) {
+    // 设置事件
+    event_set(&myEventG[MAX_EVENT], servFd, event_accept_cb, &myEventG[MAX_EVENT]);
 
-    //    ERROR("util_epoll_ctl return error");
-    //    return ret;
-    //}
+    // 添加事件
+    event_add(epollFdG, EPOLLIN, &myEventG[MAX_EVENT]);
 
     // 保存
     ((ToolRpc*)handle) ->servFd = servFd;
@@ -384,11 +379,12 @@ int rpc_socket_loop(void* handle){
             }
 
             dura = now - myEventG[checkPos].lastActivity;
-            if(dura >= 60) {
+            if(dura >= 3) {
                 
                 INFO("client connect time too long");
                 close(myEventG[checkPos].fd);
-                event_del(epollFdG, &myEventG[checkPos]);
+                event_del(epollFdG, &(myEventG[checkPos]));
+					 DEBUG("now has %d client", checkPos);
             }
         }
 
@@ -400,25 +396,19 @@ int rpc_socket_loop(void* handle){
         }
 
         for(int i = 0; i < eventNum; ++i) {
-        INFO("i");
             MyEvent* ev = (MyEvent*)eventOut[i].data.ptr;
 
-        INFO("i + 1");
-            if((eventOut[i].events & EPOLLIN) && (ev ->events & EPOLLIN)) {     // 读事件
+            if((eventOut[i].events & EPOLLIN) && (ev ->events & EPOLLIN)) {     // 有新的连接进来
             
-        INFO("i + 2");
-                INFO("client is sending infomation");
+                INFO("client is in");
                 ev ->ev_cb(ev ->fd, eventOut[i].events, ev ->arg);
             }
 
-        INFO("i + 3");
             if((eventOut[i].events & EPOLLOUT) && (ev ->events & EPOLLOUT)) {   // 写事件
 
-        INFO("i + 4");
                 INFO("write to client");
                 ev ->ev_cb(ev ->fd, eventOut[i].events, ev ->arg);
             }
-        INFO("i + 5");
         }
     }
 

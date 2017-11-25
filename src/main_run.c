@@ -18,11 +18,7 @@ int server_main(int argc, char* argv[]) {
     void*                           handle = NULL;
 
     // 初始化日志
-    ret = log_init("./conf/log.conf");
-    if(RET_OK != ret) {
-
-        return RET_ERROR;
-    }
+    log_init("./conf/log.conf");
 
 
     // 获得handle

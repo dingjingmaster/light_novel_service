@@ -29,7 +29,7 @@ int util_socket(int domain, int type, int protocol, int* servFd) {
     ret = socket(domain, type, protocol);
     if(-1 == ret) {
 
-        ERROR("socket return error");
+        ERROR("socket error -- [domain: %d, type: %d, protocol: %d], ret: %d", domain, type, protocol, ret);
         return RET_ERROR;
     }
 
@@ -52,7 +52,7 @@ int util_bind(int servFd, const struct sockaddr* addr, socklen_t addrlen) {
     ret = bind(servFd, addr, addrlen);
     if(-1 == ret) {
     
-        ERROR("bind return error");
+        ERROR("bind error -- [servFd: %d, addrlen: %d], ret: %d", servFd, addrlen, ret);
         return RET_ERROR;
     }
 
@@ -67,7 +67,7 @@ int util_listen(int servFd, int backlog) {
     ret = listen(servFd, backlog);
     if(-1 == ret) {
     
-        ERROR("listen return error");
+        ERROR("listen error -- [servFd: %d], ret: %d", servFd, ret);
         return RET_ERROR;
     }
 
@@ -86,9 +86,9 @@ int util_accept(int sockFd, struct sockaddr* addr, socklen_t* addrlen, int* fdNu
     int         ret = 0;
 
     ret = accept(sockFd, addr, addrlen);
-    if(RET_OK != ret) {
+    if(-1 == ret) {
 
-        ERROR("accept return error");
+        ERROR("accept error -- [sockFd: %d, addrlen: %d], ret: %d", sockFd, *addrlen, ret);
         return RET_ERROR;
     }
 
@@ -112,7 +112,7 @@ int util_fd_close(int* fd) {
     ret = close(*fd);
     if(-1 == ret) {
 
-        ERROR("close return error");
+        ERROR("close error -- [fd: %d] return: %d", *fd, ret);
         return RET_FD_CLOSED;
     }
 
@@ -135,7 +135,7 @@ int util_epoll_create(int size, int* epFd) {
     ret = epoll_create(size);
     if(-1 == ret) {
     
-        ERROR("epoll_create return error");
+        ERROR("epoll_create error -- [size: %d, epFd: %d] ret: %d", size, *epFd, ret);
         return RET_ERROR;
     }
 
@@ -158,7 +158,7 @@ int util_epoll_ctl(int epFd, int op, int fd, struct epoll_event* event) {
     ret = epoll_ctl(epFd, op, fd, event);
     if(-1 == ret) {
 
-        ERROR("epoll_ctl return error");
+        ERROR("epoll_ctl error -- [epFd: %d, op: %d, fd: %d] ret: %d", epFd, op, fd, ret);
         return RET_ERROR;
     }
 
@@ -179,7 +179,7 @@ int util_epoll_wait(int epFd, struct epoll_event* event, int maxevents, int time
     ret = epoll_wait(epFd, event, maxevents, timeout);
     if(-1 == ret) {
 
-        ERROR("epoll_wait return error");
+        ERROR("epoll_wait error -- [epFd: %d, maxevents: %d, timeout: %d] ret: %d", epFd, maxevents, timeout, ret);
         return RET_ERROR;
     }
 

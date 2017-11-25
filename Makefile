@@ -17,6 +17,8 @@ INCLUDE = -I $(LOGDIR)
 TARGET = service
 TEST = test
 
+TARGETOBJ = $()
+
 LOGOBJS = $(LOGDIR)/buf.o\
 		  $(LOGDIR)/category.o\
 		  $(LOGDIR)/category_table.o\
@@ -59,6 +61,9 @@ all : $(TARGET) $(TEST)
 
 $(TARGET) : $(SERVEROBJS) $(LOGOBJS)
 	$(CC) -o $@ $^ $(LIBRARY) $(INCLUDE) $(DEBUG) $(WARNINGS)
+
+
+
 
 
 %.o : %.c
