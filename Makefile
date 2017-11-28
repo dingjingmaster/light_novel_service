@@ -43,6 +43,7 @@ LOGOBJS = $(LOGDIR)/buf.o\
 SERVEROBJS = $(SRCDIR)/main.o\
 			 $(SRCDIR)/main_run.o\
 			 $(SRCDIR)/tool_log.o\
+			 $(SRCDIR)/tool_list.o\
 			 $(SRCDIR)/tool_util.o\
 			 $(SRCDIR)/tool_thread_pool.o\
 			 $(SRCDIR)/tool_socket.o\
