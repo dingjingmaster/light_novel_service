@@ -50,6 +50,7 @@ int list_init(void** handle){
    return RET_OK;
 }
 
+// 添加头结点
 int list_add_head(void* handle, void* value){
 
 	if(NULL == handle || NULL == value) {
@@ -82,7 +83,7 @@ int list_add_head(void* handle, void* value){
 		list ->head = node;
    }
 	
-	list ->length ++;
+	++ (list ->length);
 
 	return RET_OK;
 }
@@ -120,7 +121,7 @@ int list_add_tail(void* handle, void* value){
       newNode ->next = NULL;
 	}
 	
-	list ->length ++;
+	++(list ->length);
 
    return RET_OK;
 }
@@ -145,6 +146,7 @@ int list_pop_head(void* handle, void** node) {
 	link ->head = (link ->head) ->next;
 
 	*node = popNode;
+	-- (link ->length);
 
 	return RET_OK;
 }
@@ -189,6 +191,7 @@ int list_pop_by_value(void* handle, void* value, void** node) {
 	// 去除节点
 	pPre ->next = pCur ->next;
 	pCur ->next = NULL;
+	-- (link ->length);
 
 	return RET_OK;
 }
@@ -209,6 +212,7 @@ int list_insert_node_tail(void* handle, void* node) {
 	pTail = link ->tail;
 
 	pTail -> next = node;
+	++ (link ->length);
 
 	return RET_OK;
 }
@@ -244,23 +248,23 @@ void list_destroy(void** handle) {
 	LinkNode* 	pNext = NULL;
 	
 	//  指向头指针
-   pCur = ((Link*)(*handle)) ->head;
 	pList = (Link*)(*handle);
+   pCur = pList ->head;
 
-   while(--(pList ->length)) {
+   for(;pList->length > 0;--(pList ->length)) {
 		
       pNext = pCur ->next; 						//  保存下一个节点
 
-      if(NULL != (pCur ->value)) {
+      if(NULL != pCur) {
 			
-			free(pCur ->value); 						// 释放值
+			free(pCur); 								// 释放值
 		}
-      free(pCur);
       pCur = pNext;
 	}
 
    pList ->head = NULL;
    pList ->tail = NULL;
+	free(pList);
 	*handle = NULL;
 }
 
