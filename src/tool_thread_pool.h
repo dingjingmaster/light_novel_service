@@ -8,43 +8,31 @@
 #ifndef _TOOL_THREAD_POOL_H
 #define _TOOL_THREAD_POOL_H
 
-#include <pthread.h>
 
-typedef   struct _PthreadPool    PthreadPool;
-typedef   struct _PthreadWorker  PthreadWorker;
+typedef   struct _PthreadPool    PthreadPool; 								// 线程池结构体
+typedef   struct _PthreadWorker  PthreadWorker; 							// 任务结构体
+typedef void* (*worker_callback)(void* argv); 								// 任务回调
 
-typedef void* (*worker_callback)(void* argv);
-
-struct _PthreadWorker
-{
-    worker_callback             worker;
-    void*                       argv;
-
-    struct _PthreadWorker*      next;
-};
-
-struct _PthreadPool
-{
-    int               maxThreadNum;
-    int               shutDown;
-    int               workerNum;
-
-    pthread_t*        threadId;
-
-    PthreadWorker*    workerHead;
-
-    pthread_mutex_t   lock;
-    pthread_cond_t    ready;
-};
-
-//  thread pool init
+/**
+ * 线程池初始化操作
+ * 输入输出: handle 线程池句柄
+ * 输入    : num 线程池中线程的数量
+ */
 int threadpool_init(int num);
 
-//  add work
+/**
+ * 在线程池中添加任务
+ * 输入: handle 线程池的句柄
+ * 输入: workFunc 自定义的任务执行函数
+ * 输入: argv 自定义的任务函数参数
+ */
 int threadpool_add_work(worker_callback workFunc, void* argv);
 
-//  thread pool destroy
-int threadpool_destroy();
+/**
+ * 线程池的销毁
+ * 输入输出: handle 线程池的句柄
+ */
+int threadpool_destroy(void);
 
 
 

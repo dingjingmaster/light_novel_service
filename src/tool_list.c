@@ -132,7 +132,6 @@ int list_pop_head(void* handle, void** node) {
 		return RET_ERROR;
 	}
 
-	int 											ret = 0;
 	Link* 										link = NULL;
 	LinkNode* 									popNode = NULL;
 
@@ -159,12 +158,10 @@ int list_pop_by_value(void* handle, void* value, void** node) {
 		return RET_ERROR;
 	}
 
-	int 											ret = 0;
 	int 											length = 0;
 	Link* 										link = NULL;
 	LinkNode* 									pPre = NULL;
 	LinkNode* 									pCur = NULL;
-	LinkNode* 									popNode = NULL;
 
 	link = (Link*)handle;
 	length = link -> length;
@@ -190,7 +187,7 @@ int list_pop_by_value(void* handle, void* value, void** node) {
 	}
 
 	// 去除节点
-	pPre = pCur ->next;
+	pPre ->next = pCur ->next;
 	pCur ->next = NULL;
 
 	return RET_OK;
@@ -205,7 +202,6 @@ int list_insert_node_tail(void* handle, void* node) {
 		return RET_NULL_POINTER;
 	}
 
-	int 											ret = 0;
 	Link* 										link = NULL;
 	LinkNode* 									pTail = NULL;
 
@@ -225,7 +221,6 @@ int list_get_value(void* node, void** value) {
 		return RET_NULL_POINTER;
 	}
 
-	int 											ret = 0;
 	LinkNode* 									pNode = NULL;
 
 	*value = pNode ->value;

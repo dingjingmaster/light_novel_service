@@ -30,7 +30,7 @@
 
 void log_init(char* confPath);
 
-void log_destory();
+void log_destory(void);
 
 
 

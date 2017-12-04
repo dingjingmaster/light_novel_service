@@ -274,7 +274,7 @@ int rpc_socket_init(void* handle) {
     int                     ret = 0;
     int                     servFd;
     struct sockaddr_in      servAddr;
-    struct epoll_event      event;
+    //struct epoll_event      event;
 
     int port = ((ToolRpc*)handle) ->port;
 
