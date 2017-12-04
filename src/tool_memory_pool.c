@@ -12,24 +12,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct _MemoryPool MemoryPool;
-typedef struct _MemoryBlock MemoryBlock;
-
-struct _MemoryBlock {
-
-	void* 						memPtr; 											// 首地址
-	int 							status; 											// status 0 表示未使用 1 表示正在使用
-
-	struct _MemoryBlock* 	next;
-};
+typedef struct _MemoryPool 	MemoryPool;
 
 struct _MemoryPool{
 
-	int 							total; 											// 内存池总大小
-	int 							remain; 											// 剩余大小
+	int 								total; 											// 内存池总大小
+	int 								remain; 											// 剩余大小
 
-	Link* 						usedBlock; 										// 已使用内存
-	Link* 						remainBlock; 									// 未使用内存
+	Link* 							usedBlock; 										// 已使用内存
+	Link* 							remainBlock; 									// 未使用内存
 };
 
 int memory_init(void** handle, int size, int num) {
@@ -40,20 +31,180 @@ int memory_init(void** handle, int size, int num) {
 		return RET_ERROR;
 	}
 
-	int 							ret = 0;
-	MemoryPool* 				memPool = NULL;
+	int 								ret = 0;
+	Link* 							usedBlock= NULL;
+	Link* 							remainBlock = NULL;
+	MemoryPool* 					memPool = NULL;
+	void* 							memBlock = NULL;
 
-	ret = util_malloc((void**)&memPool, sizeof(MemoryPool));
+	ret = util_malloc((void**)&memPool, sizeof(MemoryPool)); 			// 创建线程池
 	if(RET_OK != ret) {
 
 		ERROR("util_malloc error");
 		return RET_ERROR;
 	}
 
+	ret = list_init((void**)&remainBlock); 									// 创建链表
+	if(RET_OK != ret) {
+
+		ERROR ("list_init error");
+		return RET_ERROR;
+	}
+
+	ret = list_init((void**)&usedBlock); 										// 创建链表
+	if(RET_OK != ret) {
+
+		ERROR ("list_init error");
+		return RET_ERROR;
+	}
+
+	for (int i = 0; i < num; ++ i) { 											// 申请内存
+
+		ret = util_malloc(&memBlock, size);
+		if(RET_OK != ret) {
+
+			ERROR("util_malloc error");
+			return RET_ERROR; // 不能退出
+		}
+
+		ret = list_add_head((void*)remainBlock, (void*)memBlock);
+		if(RET_OK != ret) {
+
+			ERROR("list_add_handle error");
+			return RET_ERROR;
+		}
+	}
+
+	memPool ->remainBlock = remainBlock;
+	memPool ->usedBlock = usedBlock;
+	memPool ->total = num;
+	memPool ->remain = num;
+
+	*handle = memPool;
+
+	return RET_OK;
+}
+
+int memory_get(void*handle, void** mem) {
+
+	if(NULL == handle || NULL == mem) {
+
+		ERROR("memory_get input error");
+
+		return RET_ERROR;
+	}
+
+	int 								ret = 0;
+	int 								remain = 0;
+	Link* 							usedBlock= NULL;
+	Link* 							remainBlock = NULL;
+	LinkNode* 						memTmp = NULL;
+	MemoryPool* 					memPool = NULL;
+
+	memPool = (MemoryPool*)handle;
+
+	usedBlock = memPool ->usedBlock;
+	remainBlock = memPool ->remainBlock;
+	remain = memPool ->remain;
+
+	if (remain <=  0) {
+
+		return RET_EMPTY_MEMPOOL;
+	}
+
+	// 获取内存节点
+	ret = list_pop_head(remainBlock, (void**)&memTmp);
+	if(RET_OK != ret) {
+
+		ERROR("list_pop_head error");
+		return RET_ERROR;
+	}
+
+	// 添加到正在使用的队列
+	ret = list_insert_node_tail(usedBlock, (void*)memTmp);
+	if(RET_OK != ret) {
+
+		ERROR("list_insert_node_tail error");
+		return RET_ERROR;
+	}
+
+	ret = list_get_value(memTmp, mem);
+	if (RET_OK != ret) {
+
+		ERROR("list_get_value error");
+		return RET_ERROR;
+	}
+
+	return RET_OK;
+}
+
+// 放回内存池
+int memory_put(void* handle, void** mem) {
+	if(NULL == handle || NULL == mem) {
+
+		ERROR("memory_put input error");
+		return RET_NULL_POINTER;
+	}
+
+	int 								ret = 0;
+	int 								remain = 0;
+	Link* 							usedBlock= NULL;
+	Link* 							remainBlock = NULL;
+	LinkNode* 						memTmp = NULL;
+	MemoryPool* 					memPool = NULL;
+
+	memPool = (MemoryPool*)handle;
+
+	usedBlock = memPool ->usedBlock;
+	remainBlock = memPool ->remainBlock;
+	remain = memPool ->remain;
 
 
+	// 获取内存节点
+	ret = list_pop_by_value(usedBlock, *mem, (void**)&memTmp);
+	if(RET_OK != ret) {
 
+		ERROR("list_pop_head error");
+		return RET_ERROR;
+	}
 
+	// 添加到正在使用的队列
+	ret = list_insert_node_tail(remainBlock, (void*)memTmp);
+	if(RET_OK != ret) {
+
+		ERROR("list_insert_node_tail error");
+		return RET_ERROR;
+	}
+
+	*mem = NULL;
+
+	return RET_OK;
+}
+
+int memory_destory(void** handle) {
+	
+	if(NULL == *handle) {
+
+		ERROR("memory_destory error");
+		return RET_ERROR;
+	}
+
+	int 								ret = 0;
+	Link* 							usedBlock= NULL;
+	Link* 							remainBlock = NULL;
+	MemoryPool* 					memPool = NULL;
+
+	memPool = (MemoryPool*)(*handle);
+
+	usedBlock = memPool ->usedBlock;
+	remainBlock = memPool ->remainBlock;
+
+	list_destroy((void**)&usedBlock);
+	list_destroy((void**)&remainBlock);
+
+	free(memPool);
+
+	*handle = NULL;
 
 	return RET_OK;
 }

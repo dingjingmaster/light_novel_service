@@ -28,6 +28,18 @@ int list_add_head(void* handle, void* value);
 /*  链表尾插    */
 int list_add_tail(void* handle, void* value);
 
+/*  弹出链表头部元素 */
+int list_pop_head(void* handle, void** node);
+
+/*  根据值弹出链元素 */
+int list_pop_by_value(void* handle, void* value, void** node);
+
+/*  链表在尾部插入节点 */
+int list_insert_node_tail(void* handle, void* node);
+
+/*  链表获取值 	*/
+int list_get_value(void* node, void** value);
+
 /*  释放链表内存  */
 void list_destroy(void** handle);
 

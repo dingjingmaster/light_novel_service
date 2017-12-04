@@ -10,14 +10,12 @@
 #include "tool_log.h"
 #include "tool_util.h"
 
-// 链表节点
 struct _LinkNode {
 	
 	void*           							value;
 	struct _LinkNode* 						next;
 };
 
-// 链表结构
 struct _Link{
 
    LinkNode*   								head; 					// 链表头结点
@@ -26,7 +24,6 @@ struct _Link{
 };
 
 
-//  链表创建
 int list_init(void** handle){
 
 	if(NULL == handle) {
@@ -35,15 +32,16 @@ int list_init(void** handle){
 		return RET_ERROR;
 	}
 
+	int 											ret = 0;
    Link*   										list = NULL;
 	
-	if((list = (Link*)malloc(sizeof(Link))) == NULL) {
+	ret = util_malloc((void**)&list, sizeof(Link));
+	if(RET_OK != ret) {
 		
 		ERROR("malloc error");
 		return RET_ERROR;
    }
 	
-	//  初始化属性
    list ->head = NULL;
    list ->tail = NULL;
    list ->length = 0;
@@ -60,23 +58,21 @@ int list_add_head(void* handle, void* value){
 		return RET_ERROR;
 	}
 
-	Link* 					list = (Link*)handle;
-	LinkNode* 				node = NULL;
+	int 											ret = 0;
+	Link* 										list = (Link*)handle;
+	LinkNode* 									node = NULL;
 	
-	//  分配内存
-	if((node = (LinkNode*)malloc(sizeof(LinkNode))) == NULL) {
+	ret = util_malloc((void**)&node, sizeof(LinkNode));
+	if(RET_OK != ret) {
 
 		ERROR ("malloc error");
 		return RET_ERROR;
    }
 	
-	//  保存值的指针
    node ->value = value;
 
-   //  添加节点到链表头部
    if(0 == list ->length) {
 		
-		//  链表中无节点
       list ->head = node;
       list ->tail= node;
       node ->next = NULL;
@@ -86,7 +82,6 @@ int list_add_head(void* handle, void* value){
 		list ->head = node;
    }
 	
-	//  更新链表节点数
 	list ->length ++;
 
 	return RET_OK;
@@ -100,21 +95,19 @@ int list_add_tail(void* handle, void* value){
 		return RET_ERROR;
 	}
 	
-	//  创建新的节点
-   LinkNode* newNode = NULL;
-	Link* list = (Link*) handle;
+	int 											ret = 0;
+   LinkNode* 									newNode = NULL;
+	Link* 										list = (Link*) handle;
 
-   //  分配内存
-   if((newNode = (LinkNode*)malloc(sizeof(LinkNode))) == NULL) {
+	ret = util_malloc((void**)&newNode, sizeof(LinkNode));
+   if(RET_OK != ret) {
 		
 		ERROR ("malloc error");
 		return RET_ERROR;
 	}
 
-   //  赋值
    newNode ->value = value;
 
-   //  如果链表为空
    if(0 == list ->length) {
 		
       list ->tail = newNode;
@@ -127,11 +120,119 @@ int list_add_tail(void* handle, void* value){
       newNode ->next = NULL;
 	}
 	
-	//  更新链表信息
 	list ->length ++;
 
    return RET_OK;
 }
+
+int list_pop_head(void* handle, void** node) {
+
+	if(NULL == handle || NULL == node) {
+
+		return RET_ERROR;
+	}
+
+	int 											ret = 0;
+	Link* 										link = NULL;
+	LinkNode* 									popNode = NULL;
+
+	link = (Link*)handle;
+
+	if(link ->length >= 1) {
+
+		popNode = link ->head;
+	}
+
+	link ->head = (link ->head) ->next;
+
+	*node = popNode;
+
+	return RET_OK;
+}
+
+int list_pop_by_value(void* handle, void* value, void** node) {
+
+	if (NULL == value || NULL == handle || NULL == node || NULL == *node) {
+
+		ERROR ("list_pop_by_value input error"); 
+
+		return RET_ERROR;
+	}
+
+	int 											ret = 0;
+	int 											length = 0;
+	Link* 										link = NULL;
+	LinkNode* 									pPre = NULL;
+	LinkNode* 									pCur = NULL;
+	LinkNode* 									popNode = NULL;
+
+	link = (Link*)handle;
+	length = link -> length;
+
+	if(length < 1) {
+
+		ERROR ("list_pop_by_value list is empty"); 
+		return RET_EMPTY_LIST;
+	}
+
+	pCur = link ->head;
+	for (int i = 0; i <= length; ++ i) {
+
+		if (value == pCur ->value) {
+
+			*node = pCur;
+
+			break;
+		}
+
+		pPre = pCur;
+		pCur = pCur ->next;
+	}
+
+	// 去除节点
+	pPre = pCur ->next;
+	pCur ->next = NULL;
+
+	return RET_OK;
+}
+
+int list_insert_node_tail(void* handle, void* node) {
+
+	if (NULL == handle || NULL == node) {
+
+		ERROR ("list_insert_node_tail input error"); 
+
+		return RET_NULL_POINTER;
+	}
+
+	int 											ret = 0;
+	Link* 										link = NULL;
+	LinkNode* 									pTail = NULL;
+
+	link = (Link*)handle;
+	pTail = link ->tail;
+
+	pTail -> next = node;
+
+	return RET_OK;
+}
+
+/* 链表获取值 */
+int list_get_value(void* node, void** value) {
+	if(NULL == node || NULL == value) {
+
+		ERROR ("list_get_value input error");
+		return RET_NULL_POINTER;
+	}
+
+	int 											ret = 0;
+	LinkNode* 									pNode = NULL;
+
+	*value = pNode ->value;
+
+	return RET_OK;
+}
+
 
 void list_destroy(void** handle) {
 	
