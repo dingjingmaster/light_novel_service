@@ -17,8 +17,6 @@ INCLUDE = -I $(LOGDIR)
 TARGET = service
 TEST = test
 
-TARGETOBJ = $()
-
 LOGOBJS = $(LOGDIR)/buf.o\
 		  $(LOGDIR)/category.o\
 		  $(LOGDIR)/category_table.o\

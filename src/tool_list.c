@@ -223,6 +223,8 @@ int list_get_value(void* node, void** value) {
 
 	LinkNode* 									pNode = NULL;
 
+	pNode = (LinkNode*)node;
+
 	*value = pNode ->value;
 
 	return RET_OK;

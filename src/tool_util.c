@@ -26,31 +26,23 @@ int util_set_zero(void* ptr, int len){
 }
 
 int util_malloc(void** ptr, int len) {
-    if(NULL == ptr || NULL == *ptr || len <= 0) {
+    if(NULL == ptr || len <= 0) {
 
         ERROR("util_malloc input error");
         return RET_NULL_POINTER;
     }
 
     void*           ret = NULL;
-    int             retInt = 0;
+
     ret = malloc(len);
-    if(NULL != ret) {
+    if(NULL == ret) {
 
         *ptr = NULL;
         ERROR("malloc error");
         return RET_ERROR;
     } 
     *ptr = ret;
-    retInt = util_set_zero(*ptr, len);
-    if(RET_OK != retInt) {
-
-        ERROR("util_set_zero return error");
-        free(ret);
-        *ptr = NULL;
-
-        return RET_ERROR;
-    }
+    memset(*ptr, 0, len);
 
     return RET_OK;
 }
