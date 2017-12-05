@@ -7,8 +7,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../../src/tool_list.h"
-#include "../../src/tool_log.h"
+#include "tool_list.h"
+#include "tool_log.h"
 
 void test01(void) {
 

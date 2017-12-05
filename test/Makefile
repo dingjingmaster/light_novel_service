@@ -8,7 +8,7 @@ LOGDIR = $(CURDIR)/../src/module/zlog
 WARNINGS = -Wall -Wstrict-prototypes -fwrapv
 DEBUG = -g -ggdb
 LIBRARY = -lpthread
-INCLUDE = -I $(LOGDIR)
+INCLUDE = -I $(LOGDIR) -I $(SRCDIR)
 
 # test 相关
 LISTDIR = $(CURDIR)/list
