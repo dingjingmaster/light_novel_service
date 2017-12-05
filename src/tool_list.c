@@ -203,13 +203,20 @@ int list_insert_node_tail(void* handle, void* node) {
 								return RET_NULL_POINTER;
 				}
 	
-				Link*																			link = NULL;
-				LinkNode*															pTail = NULL;
-	
-				link = (Link*)handle;
-				pTail = link ->tail;
-				pTail -> next = node;
-				++ (link ->length);
+				Link*																			list = (Link*)handle;
+				LinkNode*															nnode = (LinkNode*)node;
+
+				if(0 == list ->length) {
+								list ->head = nnode;
+								list ->tail = nnode;
+								nnode ->next = NULL;
+				} else {
+								list ->tail ->next = nnode;
+								list ->tail = nnode;
+								nnode ->next = NULL;
+				}
+
+				++ (list ->length);
 	
 				return RET_OK;
 }

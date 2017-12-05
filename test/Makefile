@@ -12,6 +12,7 @@ INCLUDE = -I $(LOGDIR) -I $(SRCDIR)
 
 # test 相关
 LISTDIR = $(CURDIR)/list
+MEMPOOLDIR = $(CURDIR)/memory_pool
 
 # 依赖
 LOGOBJS = $(LOGDIR)/buf.o\
@@ -39,19 +40,29 @@ TESTOBJS = $(SRCDIR)/tool_log.o\
 			 $(SRCDIR)/tool_list.o\
 			 $(SRCDIR)/tool_util.o\
 			 $(SRCDIR)/tool_thread_pool.o\
+			 $(SRCDIR)/tool_memory_pool.o\
 			 $(SRCDIR)/tool_socket.o\
 			 $(SRCDIR)/tool_rpc.o
 
-TEST_LIST = TEST_LIST_1
+list = TEST_LIST_1
+memory_pool = TEST_MEMORY_POOL_1
 
 
-TLIST_1_OBJ = $(LISTDIR)/test_list1.o
+tlist_obj = $(LISTDIR)/test_list1.o
+tmempool_obj = $(MEMPOOLDIR)/test_memory_pool.o
 
 
-all : $(TEST_LIST) 
+all: 
+
+list:$(list)
+
+mempool:$(memory_pool)
 
 
-TEST_LIST_1 : $(TLIST_1_OBJ) $(TESTOBJS) $(LOGOBJS)
+$(list):$(tlist_obj) $(TESTOBJS) $(LOGOBJS)
+	$(CC) -o $@ $^ $(LIBRARY) $(INCLUDE) $(DEBUG) $(WARNINGS)
+
+$(memory_pool):$(tmempool_obj) $(TESTOBJS) $(LOGOBJS)
 	$(CC) -o $@ $^ $(LIBRARY) $(INCLUDE) $(DEBUG) $(WARNINGS)
 
 
@@ -62,8 +73,10 @@ TEST_LIST_1 : $(TLIST_1_OBJ) $(TESTOBJS) $(LOGOBJS)
 .PHONY : clean
 
 clean :
-	rm -fr $(TEST_LIST)
+	rm -fr $(list)
+	rm -fr $(memory_pool)
+	rm -fr $(tlist_obj)
+	rm -fr $(tmempool_obj)
 	rm -fr $(TESTOBJS)
-	rm -fr $(TLIST_1_OBJ)
 
 
