@@ -17,10 +17,10 @@ struct _LinkNode {
 };
 
 struct _Link{
-	
-	LinkNode*                               head;                       // 链表头结点
-	LinkNode*                               tail;                       // 链表尾节点
-	unsigned long                           length;                     // 链表所含的节点数量
+    
+    LinkNode*                               head;                       // 链表头结点
+    LinkNode*                               tail;                       // 链表尾节点
+    unsigned long                           length;                     // 链表所含的节点数量
 };
 
 
