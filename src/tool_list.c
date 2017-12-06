@@ -25,8 +25,8 @@ struct _Link{
 
 
 int list_init(void** handle){
-				
-	if(NULL == handle) {
+    
+    if(NULL == handle) {
         
         ERROR("list_init input error");
         return RET_ERROR;
@@ -95,9 +95,9 @@ int list_add_tail(void* handle, void* value){
         return RET_ERROR;
     }
 
-    int	                                    ret = 0;
-    Link*	                                list = (Link*) handle;
-    LinkNode*							    newNode = NULL;
+    int                                     ret = 0;
+    Link*                                   list = (Link*) handle;
+    LinkNode*                               newNode = NULL;
 
     ret = util_malloc((void**)&newNode, sizeof(LinkNode));
     if(RET_OK != ret) {
