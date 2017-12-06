@@ -10,25 +10,26 @@
 #include <stdio.h>
 
 void log_init(char* confPath) {
+    
     if(NULL == confPath) {
-		 
-		 ERROR("log_init error: %s", confPath);
-		 return ;
+        
+        ERROR("log_init error: %s", confPath);
+        return ;
     }
-
-    int                 rc = 0;
+    
+    int                     rc = 0;
 
     rc = dzlog_init(confPath, "");
     if(rc) {
-
-		 ERROR("dzlog_init error ret: %d", rc);
-		 return ;
+        
+        ERROR("dzlog_init error ret: %d", rc);
+        
+        return ;
     }
-
 }
 
 void log_destory(void){
-
+    
     zlog_fini();
 }
 
