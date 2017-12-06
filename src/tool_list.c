@@ -61,8 +61,8 @@ int list_add_head(void* handle, void* value){
         return RET_ERROR;
     }
 
-    int	                                    ret = 0;
-    Link*	                                list = (Link*)handle;
+    int                                     ret = 0;
+    Link*                                   list = (Link*)handle;
     LinkNode*                               node = NULL;
 
     ret = util_malloc((void**)&node, sizeof(LinkNode));
