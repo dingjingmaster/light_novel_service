@@ -14,6 +14,7 @@ extern "C" {
 
 int memory_init(void** handle, int size, int num);
 int memory_get(void*handle, void** mem);
+int memory_put(void*handle, void** mem);
 int memory_destory(void** handle);
 
 #ifdef __cplusplus

@@ -108,6 +108,7 @@ int memory_get(void*handle, void** mem) {
 
 				if (remain <=  0) {
 
+								*mem = NULL;
 								return RET_EMPTY_MEMPOOL;
 				}
 
@@ -158,6 +159,12 @@ int memory_put(void* handle, void** mem) {
 
 				usedBlock = memPool ->usedBlock;
 				remainBlock = memPool ->remainBlock;
+
+				// 不需要放回
+				if (NULL == *mem) {
+
+								return RET_OK;
+				}
 
 				// 获取内存节点
 				ret = list_pop_by_value(usedBlock, *mem, (void**)&memTmp);

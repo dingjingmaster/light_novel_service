@@ -11,17 +11,50 @@
 #include "tool_log.h"
 
 void test01(void) {
+				
+				void*										handle = NULL;
+				void*										mem1 = NULL;
+				void*										mem2 = NULL;
+				void*										mem3 = NULL;
+				
+				DEBUG("memory_init");
+				memory_init(&handle, 1000, 2);
+				DEBUG("handle: %p", handle);
+				memory_get(handle, &mem1);
+				DEBUG("get: %p", mem1);
+				memory_get(handle, &mem2);
+				DEBUG("get: %p", mem2);
 
-	void*										handle = NULL;
-	void*										mem = NULL;
+				memory_get(handle, &mem3);
+				DEBUG("get: %p", mem3);
 
-	DEBUG("memory_init");
-	memory_init(&handle, 1000, 20);
-	DEBUG("%p", handle);
-	memory_get(handle, &mem);
-	DEBUG("%p", mem);
-	memory_destory(&handle);
 
+				DEBUG("put b: %p", mem1);
+				memory_put(handle, &mem1);
+				DEBUG("put a: %p", mem1);
+
+				memory_get(handle, &mem1);
+				DEBUG("get: %p", mem1);
+
+				memory_get(handle, &mem3);
+				DEBUG("get: %p", mem3);
+
+				DEBUG("put: %p", mem1);
+				memory_put(handle, &mem1);
+
+				DEBUG("put: %p", mem2);
+				memory_put(handle, &mem2);
+
+				DEBUG("put: %p", mem3);
+				memory_put(handle, &mem3);
+
+				memory_get(handle, &mem2);
+				DEBUG("get: %p", mem2);
+
+				memory_get(handle, &mem3);
+				DEBUG("get: %p", mem3);
+
+				memory_destory(&handle);
 }
 
 void test02(void) {
@@ -42,7 +75,7 @@ int main(void) {
 				
 				// 初始化日志
 				log_init("./log_conf/log.conf");
-				//INFO("test01 --- 头插、尾插、弹出头部元素、获取节点值");
+				//INFO("test01 --- 内存池初始化，获取内存，放回内存，销毁内存池");
 				test01();
 				//INFO("test02 --- 根据值弹出节点");
 				//test02();
